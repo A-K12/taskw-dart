@@ -41,7 +41,10 @@ Map<String, ProjectNode> sparseDecoratedProjectTree(Map<String, int> projects) {
     var path = projectPath(entry.key);
     var steps = path.asMap();
 
-    result[entry.key] = ProjectNode(entry.value);
+    if(result.containsKey(entry.key))
+      result[entry.key]!.tasks = entry.value;
+    else
+      result[entry.key] = ProjectNode(entry.value);
 
     for (var i = 0; i < path.length; i++) {
       var next = steps[i]!;
