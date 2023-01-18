@@ -41,12 +41,11 @@ class _ProfilesWidgetState extends State<ProfilesWidget> {
   }
 
   void _checkProfiles() {
-    if (_profiles.profilesMap().isEmpty) {
+    var profilesMap = _profiles.profilesMap();
+    if (profilesMap.isEmpty) {
       _profiles.setCurrentProfile(_profiles.addProfile());
-    } else if (!_profiles
-        .profilesMap()
-        .containsKey(_profiles.getCurrentProfile())) {
-      _profiles.setCurrentProfile(_profiles.profilesMap().keys.first);
+    } else if (!profilesMap.containsKey(_profiles.getCurrentProfile())) {
+      _profiles.setCurrentProfile(profilesMap.keys.first);
     }
   }
 

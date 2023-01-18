@@ -80,23 +80,22 @@ class _StorageWidgetState extends State<StorageWidget> {
   }
 
   void _profileSet() {
-    pendingFilter = Query(storage.tabs.tab()).getPendingFilter();
-    projectFilter = Query(storage.tabs.tab()).projectFilter();
-    tagUnion = Query(storage.tabs.tab()).tagUnion();
-    selectedSort = Query(storage.tabs.tab()).getSelectedSort();
-    selectedTags = Query(storage.tabs.tab()).getSelectedTags();
+    var query = Query(storage.tabs.tab());
+    pendingFilter = query.getPendingFilter();
+    projectFilter = query.projectFilter();
+    tagUnion = query.tagUnion();
+    selectedSort = query.getSelectedSort();
+    selectedTags = query.getSelectedTags();
     _refreshTasks();
-    pendingTags = _pendingTags();
-    projects = _projects();
     if (searchVisible) {
       toggleSearch();
     }
   }
 
   void _refreshTasks() {
+    var pendingData = storage.data.pendingData();
     if (pendingFilter) {
-      queriedTasks = storage.data
-          .pendingData()
+      queriedTasks = pendingData
           .where((task) => task.status == 'pending')
           .toList();
     } else {
@@ -150,14 +149,16 @@ class _StorageWidgetState extends State<StorageWidget> {
                   (annotation) => annotation.description.contains(searchTerm)))
           .toList();
     }
-    pendingTags = _pendingTags();
-    projects = _projects();
+
+
+    pendingTags = _pendingTags(pendingData);
+    projects = _projects(pendingData);
   }
 
-  Map<String, TagMetadata> _pendingTags() {
-    var frequency = tagFrequencies(storage.data.pendingData());
-    var modified = tagsLastModified(storage.data.pendingData());
-    var setOfTags = tagSet(storage.data.pendingData());
+  Map<String, TagMetadata> _pendingTags(List<Task> pendingData) {
+    var frequency = tagFrequencies(pendingData);
+    var modified = tagsLastModified(pendingData);
+    var setOfTags = tagSet(pendingData);
     return SplayTreeMap.of({
       for (var tag in setOfTags)
         tag: TagMetadata(
@@ -172,9 +173,9 @@ class _StorageWidgetState extends State<StorageWidget> {
     });
   }
 
-  Map<String, ProjectNode> _projects() {
+  Map<String, ProjectNode> _projects(List<Task> pendingData) {
     var frequencies = <String, int>{};
-    for (var task in storage.data.pendingData()) {
+    for (var task in pendingData) {
       if (task.project != null) {
         if (frequencies.containsKey(task.project)) {
           frequencies[task.project!] = (frequencies[task.project] ?? 0) + 1;
@@ -244,8 +245,6 @@ class _StorageWidgetState extends State<StorageWidget> {
     try {
       var header = await storage.home.synchronize(await client());
       _refreshTasks();
-      pendingTags = _pendingTags();
-      projects = _projects();
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('${header['code']}: ${header['status']}'),
