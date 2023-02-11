@@ -244,8 +244,6 @@ class _StorageWidgetState extends State<StorageWidget> {
   Future<void> synchronize(BuildContext context) async {
     try {
       var header = await storage.home.synchronize(await client());
-      _refreshTasks();
-      setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('${header['code']}: ${header['status']}'),
       ));
@@ -256,6 +254,9 @@ class _StorageWidgetState extends State<StorageWidget> {
         e: e,
         trace: trace,
       );
+    } finally{
+      _refreshTasks();
+      setState(() {});
     }
   }
 
