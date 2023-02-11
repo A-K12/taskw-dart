@@ -32,13 +32,14 @@ void main([List<String> args = const []]) {
     ).createSync(recursive: true);
   }
 
+  var isQuickAdd = args.isNotEmpty;
   runApp(
     FutureBuilder<Directory>(
       future: getApplicationDocumentsDirectory(),
       builder: (context, snapshot) => (snapshot.hasData)
           ? ProfilesWidget(
               baseDirectory: testingDirectory ?? snapshot.data!,
-              child: const TaskApp(),
+              child:  isQuickAdd? const QuickAddWidget() : const TaskApp(),
             )
           : const Placeholder(),
     ),
@@ -62,3 +63,4 @@ class TaskApp extends StatelessWidget {
     );
   }
 }
+

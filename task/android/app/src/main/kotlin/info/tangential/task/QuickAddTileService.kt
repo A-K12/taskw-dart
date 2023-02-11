@@ -6,18 +6,22 @@ import android.service.quicksettings.TileService
 import android.util.Log
 import androidx.annotation.RequiresApi
 import io.flutter.embedding.android.FlutterActivity
-
+import io.flutter.embedding.android.FlutterActivityLaunchConfigs.BackgroundMode;
 
 @RequiresApi(Build.VERSION_CODES.N)
 class MyTileService: TileService() {
 
     override fun onClick() {
         super.onClick()
-
         try{
-            val newIntent=FlutterActivity.withNewEngine().dartEntrypointArgs(listOf("QuickAdd")).build(this)
-            newIntent.flags=Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivityAndCollapse(newIntent)
+            val intent = FlutterActivity.withNewEngine()
+                .backgroundMode(BackgroundMode.transparent)
+                .dartEntrypointArgs(listOf("QuickAdd")).build(this)
+
+            intent.flags=Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            startActivityAndCollapse(intent)
         }
         catch (e:Exception){
             Log.d("debug","Exception ${e.toString()}")
